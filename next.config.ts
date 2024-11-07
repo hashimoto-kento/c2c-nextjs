@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
   compiler: {
-  styledComponents: true,
-},
+    styledComponents: true,
+  },
 };
 
 export default nextConfig;
