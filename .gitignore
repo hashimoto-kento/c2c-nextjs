@@ -39,8 +39,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# caution.md
-.md
-
-#prisma
-.prisma
+caution.md
