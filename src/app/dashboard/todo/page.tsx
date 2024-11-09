@@ -63,7 +63,7 @@ export default function TodoPage() {
       <AddTodoForm onAdd={addTodo} />
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="todos">
-          {(provided: DroppableProvided) => (
+          {(provided) => (
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
@@ -75,7 +75,7 @@ export default function TodoPage() {
                   draggableId={todo.id}
                   index={index}
                 >
-                  {(provided: DraggableProvided) => (
+                  {(provided)=> (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}

@@ -3,6 +3,9 @@ packege manager...pnpm
 sidebar
 lucide-react...type error, declarations.d.ts by clear
 
+weather
+APIkey setting, open weather
+
 prisma-adapter
 next-auth.d.ts create and TSserver restart by clear
 
