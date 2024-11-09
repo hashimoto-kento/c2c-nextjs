@@ -53,8 +53,8 @@ model Event {
   description String?
   startDate   DateTime
   endDate     DateTime
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

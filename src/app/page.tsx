@@ -2,6 +2,7 @@
 
 import { Clock } from "@/app/components/Clock";
 import Link from "next/link";
+import { Toaster } from "./components/ui/toaster";
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
         <Link href="/dashboard/todo">
           <p>Todo</p>
         </Link>
+        <Toaster />
       </main>
     </div>
   );
