@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided } from '@hello-pangea/dnd'
 import { Todo } from '../../types'
 import { TodoItem } from '../../components/todo/TodoItem'
 import { AddTodoForm } from '../../components/todo/AddTodoForm'
@@ -20,6 +20,7 @@ export default function TodoPage() {
   }
 
   const addTodo = async (title: string) => {
+    try {
     const response = await fetch('/api/todos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -27,7 +28,10 @@ export default function TodoPage() {
     })
     const newTodo = await response.json()
     setTodos([newTodo, ...todos])
+  } catch (error) {
+    console.error('An error occurred', error)
   }
+};
 
   const toggleTodo = async (id: string, completed: boolean) => {
     await fetch(`/api/todos/${id}`, {
@@ -62,7 +66,7 @@ export default function TodoPage() {
       <h1 className="text-2xl font-bold mb-6">ToDoリスト</h1>
       <AddTodoForm onAdd={addTodo} />
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="todos">
+        <Droppable droppableId="todos" isDropDisabled={false}>
           {(provided) => (
             <div
               {...provided.droppableProps}

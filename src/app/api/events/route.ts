@@ -12,26 +12,19 @@ const eventSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const validatedData = eventSchema.parse(body);
+  const body = await request.json();
+  const validatedData = eventSchema.parse(body);
 
-    const event = await prisma.event.create({
-      data: {
-        ...validatedData,
-        startDate: new Date(validatedData.startDate),
-        endDate: new Date(validatedData.endDate),
-        user: {}, // Add the required 'user' property here
-      },
-    });
+  const event = await prisma.event.create({
+    data: {
+      ...validatedData,
+      startDate: new Date(validatedData.startDate),
+      endDate: new Date(validatedData.endDate),
+      user: {}, // Add the required 'user' property here
+    },
+  });
 
-    return NextResponse.json(event);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Invalid request data" },
-      { status: 400 }
-    );
-  }
+  return NextResponse.json(event);
 }
 
 export async function GET(request: Request) {
@@ -39,48 +32,34 @@ export async function GET(request: Request) {
   const start = searchParams.get("start");
   const end = searchParams.get("end");
 
-  try {
-    const events = await prisma.event.findMany({
-      where: {
-        AND: [
-          start ? { startDate: { gte: new Date(start) } } : {},
-          end ? { endDate: { lte: new Date(end) } } : {},
-        ],
-      },
-    });
+  const events = await prisma.event.findMany({
+    where: {
+      AND: [
+        start ? { startDate: { gte: new Date(start) } } : {},
+        end ? { endDate: { lte: new Date(end) } } : {},
+      ],
+    },
+  });
 
-    return NextResponse.json(events);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch events" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(events);
 }
 
 export async function PUT(request: Request) {
-  try {
-    const body = await request.json();
-    const { id, ...updateData } = body;
+  const body = await request.json();
+  const { id, ...updateData } = body;
 
-    const validatedData = eventSchema.parse(updateData);
+  const validatedData = eventSchema.parse(updateData);
 
-    const event = await prisma.event.update({
-      where: { id },
-      data: {
-        ...validatedData,
-        startDate: new Date(validatedData.startDate),
-        endDate: new Date(validatedData.endDate),
-      },
-    });
+  const event = await prisma.event.update({
+    where: { id },
+    data: {
+      ...validatedData,
+      startDate: new Date(validatedData.startDate),
+      endDate: new Date(validatedData.endDate),
+    },
+  });
 
-    return NextResponse.json(event);
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update event" },
-      { status: 400 }
-    );
-  }
+  return NextResponse.json(event);
 }
 
 export async function DELETE(request: Request) {
@@ -94,16 +73,9 @@ export async function DELETE(request: Request) {
     );
   }
 
-  try {
-    await prisma.event.delete({
-      where: { id },
-    });
+  await prisma.event.delete({
+    where: { id },
+  });
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to delete event" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ success: true });
 }
