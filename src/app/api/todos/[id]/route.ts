@@ -9,7 +9,7 @@ export async function PUT(
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    return new NextResponse(JSON.stringify("Unauthorized"), { status: 401 });
   }
 
   const { title, completed } = await req.json();
@@ -27,7 +27,7 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    return new NextResponse(JSON.stringify("Unauthorized"), { status: 401 });
   }
 
   await prisma.todo.delete({

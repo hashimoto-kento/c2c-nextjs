@@ -30,7 +30,7 @@ export async function generateStaticParams() {
 }
 
 export default async function UserPage({ params }: UserPageProps) {
-  const { id } = params;
+  const { id } = await params;
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/users/${id}`
   );

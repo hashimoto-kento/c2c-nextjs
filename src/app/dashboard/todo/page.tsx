@@ -1,65 +1,69 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { DragDropContext, Droppable, Draggable, DroppableProvided, DraggableProvided } from '@hello-pangea/dnd'
-import { Todo } from '../../types'
-import { TodoItem } from '../../components/todo/TodoItem'
-import { AddTodoForm } from '../../components/todo/AddTodoForm'
+import { useState, useEffect } from "react";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DroppableProvided,
+  DraggableProvided,
+} from "@hello-pangea/dnd";
+import { Todo } from "@/app/types";
+import { TodoItem } from "@/app/components/todo/TodoItem";
+import { AddTodoForm } from "@/app/components/todo/AddTodoForm";
 
 export default function TodoPage() {
-  const [todos, setTodos] = useState<Todo[]>([])
+  const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
-    fetchTodos()
-  }, [])
+    fetchTodos();
+  }, []);
 
   const fetchTodos = async () => {
-    const response = await fetch('/api/todos')
-    const data = await response.json()
-    setTodos(data)
-  }
+    const response = await fetch("/api/todos");
+    const data = await response.json();
+    setTodos(data);
+  };
 
   const addTodo = async (title: string) => {
     try {
-    const response = await fetch('/api/todos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title }),
-    })
-    const newTodo = await response.json()
-    setTodos([newTodo, ...todos])
-  } catch (error) {
-    console.error('An error occurred', error)
-  }
-};
+      const response = await fetch("/api/todos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title }),
+      });
+      const newTodo = await response.json();
+      setTodos([newTodo, ...todos]);
+    } catch (error) {
+      console.error("An error occurred", error);
+    }
+  };
 
   const toggleTodo = async (id: string, completed: boolean) => {
     await fetch(`/api/todos/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ completed }),
-    })
+    });
     setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed } : todo
-      )
-    )
-  }
+      todos.map((todo) => (todo.id === id ? { ...todo, completed } : todo))
+    );
+  };
 
   const deleteTodo = async (id: string) => {
-    await fetch(`/api/todos/${id}`, { method: 'DELETE' })
-    setTodos(todos.filter((todo) => todo.id !== id))
-  }
+    await fetch(`/api/todos/${id}`, { method: "DELETE" });
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
 
   const onDragEnd = (result: any) => {
-    if (!result.destination) return
+    if (!result.destination) return;
 
-    const items = Array.from(todos)
-    const [reorderedItem] = items.splice(result.source.index, 1)
-    items.splice(result.destination.index, 0, reorderedItem)
+    const items = Array.from(todos);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
 
-    setTodos(items)
-  }
+    setTodos(items);
+  };
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -73,32 +77,29 @@ export default function TodoPage() {
               ref={provided.innerRef}
               className="space-y-2"
             >
-              {todos.map((todo, index) => (
-                <Draggable
-                  key={todo.id}
-                  draggableId={todo.id}
-                  index={index}
-                >
-                  {(provided)=> (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                    >
-                      <TodoItem
-                        todo={todo}
-                        onToggle={toggleTodo}
-                        onDelete={deleteTodo}
-                      />
-                    </div>
-                  )}
-                </Draggable>
-              ))}
+              {todos &&
+                todos.map((todo, index) => (
+                  <Draggable key={todo.id} draggableId={todo.id} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                      >
+                        <TodoItem
+                          todo={todo}
+                          onToggle={toggleTodo}
+                          onDelete={deleteTodo}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
               {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
     </div>
-  )
+  );
 }
