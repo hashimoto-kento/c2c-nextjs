@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState,  useCallback } from 'react';
 import { Todo } from '@/app/types';
-import { set } from 'zod';
 
 export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     try {
     const response = await fetch("/api/todos");
     if (!response.ok) {
@@ -18,10 +17,11 @@ export function useTodos() {
     const data = await response.json();
     setTodos(data);
   } catch (error) {
-    console.error(error);
-    setTodos([]);
+    setError('Failed to load todos');
+  } finally {
+    setIsLoading(false);
   }
-  };
+  }, []);
 
   const addTodo = async (title: string) => {
     const response = await fetch("/api/todos", {
@@ -47,5 +47,5 @@ export function useTodos() {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
 
-  return { todos, addTodo, toggleTodo, deleteTodo };
+  return { todos, isLoading, error, fetchTodos, addTodo, toggleTodo, deleteTodo };
 }

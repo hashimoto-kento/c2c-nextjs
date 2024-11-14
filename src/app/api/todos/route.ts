@@ -6,7 +6,10 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return new NextResponse(JSON.stringify("Unauthorized"), { status: 401 });
+    return new NextResponse(JSON.stringify("Unauthorized"), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   const todos = await prisma.todo.findMany({
