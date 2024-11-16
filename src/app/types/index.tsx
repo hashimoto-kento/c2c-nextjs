@@ -6,10 +6,11 @@ export interface User {
 
 export interface Todo {
   id: string
-  userId: string
-  title: string
+  // userId: string
+  // title: string
+  text: string
   completed: boolean
-  createdAt: Date
+  // createdAt: Date
 }
 
 export interface WeatherData {
