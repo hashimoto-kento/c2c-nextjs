@@ -1,5 +1,3 @@
-
-import { AppProps } from "next/app";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "../app/providers";
