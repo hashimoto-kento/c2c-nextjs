@@ -50,7 +50,7 @@ export default function SignIn() {
         </button>
       </form>
       <Link href="/auth/signup">
-        <div className="text-blue-500 underline mt-4">Don't have an account? Sign Up</div>
+        <div className="text-blue-500 underline mt-4">{`Don't have an account? Sign Up`}</div>
       </Link>
     </div>
   );

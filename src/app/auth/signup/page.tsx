@@ -2,20 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { set } from "react-hook-form";
 
 export default function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
     try {
       const response = await fetch("/api/auth/signup", {
@@ -27,14 +22,10 @@ export default function SignUp() {
       if (response.ok) {
         router.push("/auth/signin");
       } else {
-        const errorData = await response.json();
-        setError(errorData.error || "Sign up failed");
       }
     } catch (error) {
       console.error("Sign up failed:", error);
-      setError("An unexpected error occurred");
     } finally {
-      setLoading(false);
     }
   };
 
