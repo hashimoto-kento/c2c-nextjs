@@ -10,7 +10,7 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Todo App</h1>
+      <h1 className='text-blue-500'>Todo App</h1>
       <AddTodoForm onAdd={addTodo} />
       <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />
     </div>
