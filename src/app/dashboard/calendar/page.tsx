@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, Views, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import {
@@ -8,28 +8,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "../../components/ui/dialog";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Textarea } from "../../components/ui/textarea";
-import { Checkbox } from "../../components/ui/checkbox";
-import { useToast } from "../../components/ui/use-toast";
-
-
-function MyComponent() {
-  const { toast } = useToast()
-
-  const handleClick = () => {
-    toast({
-      title: "予約完了",
-      description: "予約が正常に完了しました。",
-    })
-  }
-
-  return <button onClick={handleClick}>予約する</button>
-}
-
-
+} from "@/app/components/ui/dialog";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Textarea } from "@/app/components/ui/textarea";
+import { Checkbox } from "@/app/components/ui/checkbox";
+import { useToast } from "@/app/components/ui/use-toast";
 
 const localizer = momentLocalizer(moment);
 
@@ -57,11 +41,7 @@ const CalendarPage = () => {
     allDay: false,
   });
 
-  useEffect(() => {
-    fetchEvents();
-  }, []);
-
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch("/api/events");
       const data = await response.json();
@@ -73,13 +53,18 @@ const CalendarPage = () => {
         }))
       );
     } catch (error) {
+      console.error("Failed to fetch events:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch events",
+        description: "Failed to fetch events. Please try again later.",
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
     setIsEditMode(false);
@@ -131,9 +116,10 @@ const CalendarPage = () => {
         description: isEditMode ? "Event updated" : "Event created",
       });
     } catch (error) {
+      console.error("Failed to save event:", error);
       toast({
         title: "Error",
-        description: "Failed to save event",
+        description: "Failed to save event. Please try again.",
         variant: "destructive",
       });
     }
@@ -154,9 +140,10 @@ const CalendarPage = () => {
         description: "Event deleted",
       });
     } catch (error) {
+      console.error("Failed to delete event:", error);
       toast({
         title: "Error",
-        description: "Failed to delete event",
+        description: "Failed to delete event. Please try again.",
         variant: "destructive",
       });
     }
