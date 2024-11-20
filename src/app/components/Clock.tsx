@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 
 const UPDSATE_CYCLE = 1000;
@@ -16,7 +18,7 @@ const getLocaleFromString = (text: string) => {
     case Locale.JP:
       return Locale.JP;
     default:
-      return Locale.US;
+      return Locale.JP;
   }
 };
 
@@ -46,18 +48,16 @@ export const Clock = () => {
   }, [locale]);
 
   return (
-    <div>
-      <p>
-        <span id="current-time-label"></span>
-        <span>:{timestamp.toLocaleString(locale)}</span>
-        <select
-          value={locale}
-          onChange={(e) => setLocale(getLocaleFromString(e.target.value))}
-        >
-          <option value="en-US">en-US</option>
-          <option value="ja-JP">ja-JP</option>
-        </select>
-      </p>
+    <div className="mt-4 px-2 text-sm text-gray-600">
+      <span>:{timestamp.toLocaleString(locale)}</span>
+      <select
+        value={locale}
+        onChange={(e) => setLocale(getLocaleFromString(e.target.value))}
+        className="ml-2 text-xs bg-transparent border-none"
+      >
+        <option value="en-US">EN</option>
+        <option value="ja-JP">JP</option>
+      </select>
     </div>
   );
 };

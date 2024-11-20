@@ -44,6 +44,9 @@ const CalendarPage = () => {
   const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch("/api/events");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch events: ${response.status}`);
+      }
       const data = await response.json();
       setEvents(
         data.map((event: Event) => ({
