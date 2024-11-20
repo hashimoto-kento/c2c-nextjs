@@ -1,8 +1,9 @@
 // src/types/next-auth.d.ts
-import NextAuth from "next-auth";
+// @ts-expect-error - NextAuth types are used for module augmentation
+import type { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
-  interface Session {
+  interface Session extends DefaultSession {
     user: {
       id: string;
       name?: string | null;

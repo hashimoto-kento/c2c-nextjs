@@ -1,9 +1,9 @@
-import { GetStaticProps, NextPage } from "next";
+// import { GetStaticProps, NextPage } from "next";
 import Link from "next/link";
 
-type SSGProps = {
-  message: string;
-};
+// type SSGProps = {
+//   message: string;
+// };
 
 export const metadata = {
   title: "SSG Page",

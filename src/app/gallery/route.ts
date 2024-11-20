@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { put } from "@vercel/blob";
-import { prisma } from "../lib/prisma";
+// import { put } from "@vercel/blob";
+// import { prisma } from "../lib/prisma";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -11,9 +11,9 @@ export async function POST(request: Request) {
   }
 
   // Upload to Vercel Blob
-  const blob = await put(file.name, file, {
-    access: "public",
-  });
+  // const blob = await put(file.name, file, {
+  //   access: "public",
+  // });
 
   // Save to database
   // const image = await prisma.image.create({

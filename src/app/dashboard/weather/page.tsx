@@ -18,22 +18,15 @@ interface WeatherData {
 
 export default function WeatherPage() {
   const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const getWeather = async (position: GeolocationPosition) => {
-      try {
         const response = await fetch(
           `/api/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}`
         );
         const data = await response.json();
         setWeatherData(data.list);
-      } catch (err) {
-        setError("天気データの取得に失敗しました");
-      } finally {
-        setLoading(false);
-      }
     };
 
     navigator.geolocation.getCurrentPosition(getWeather, () =>
@@ -56,7 +49,6 @@ export default function WeatherPage() {
     }
   };
 
-  if (loading) return <div>読み込み中...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
