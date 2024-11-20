@@ -1,9 +1,12 @@
 import prisma from "@/app/lib/prisma";
-import { getServerSession } from "next-auth/next"; // Ensure correct import path
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(req: NextRequest, context: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -12,7 +15,7 @@ export async function PUT(req: NextRequest, context: { params: { id: string } })
   try {
     const { title, completed } = await req.json();
     const todo = await prisma.todo.update({
-      where: { id: context.params.id },
+      where: { id: params.id },
       data: { title, completed },
     });
     return NextResponse.json(todo);
@@ -22,7 +25,10 @@ export async function PUT(req: NextRequest, context: { params: { id: string } })
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -30,7 +36,7 @@ export async function DELETE(req: NextRequest, context: { params: { id: string }
 
   try {
     await prisma.todo.delete({
-      where: { id: context.params.id },
+      where: { id: params.id },
     });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
