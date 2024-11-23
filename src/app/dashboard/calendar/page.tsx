@@ -1,16 +1,30 @@
-'use client';
+"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CalendarView } from "@/app/components/calendar/CalendarView";
 import { EventDialog } from "@/app/components/calendar/EventDialog";
 import { useEventOperations } from "@/app/hooks/useEventOperations";
 import { CalendarEvent, CalendarEventFormData } from "@/app/types/event";
-import { Button } from "@/app/components/ui/button";
 
 const CalendarPage = () => {
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null
+  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { events, fetchEvents, handleSubmit, handleDelete } = useEventOperations();
+  const { fetchEvents, handleSubmit, handleDelete } = useEventOperations();
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const fetchedEvents = await fetchEvents();
+        setEvents(fetchedEvents);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      }
+    };
+    loadEvents();
+  }, [fetchEvents]);
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
     setSelectedEvent(null);
@@ -23,14 +37,26 @@ const CalendarPage = () => {
   };
 
   const onSubmit = async (data: CalendarEventFormData) => {
-    await handleSubmit(data, selectedEvent);
-    setIsDialogOpen(false);
+    try {
+      const newEvent = await handleSubmit(data, selectedEvent);
+      setEvents((prevEvents) => [...prevEvents, newEvent]);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error creating/updating event:", error);
+    }
   };
 
   const onDelete = async () => {
     if (selectedEvent) {
-      await handleDelete(selectedEvent);
-      setIsDialogOpen(false);
+      try {
+        await handleDelete(selectedEvent);
+        setEvents((prevEvents) =>
+          prevEvents.filter((event) => event.id !== selectedEvent.id)
+        );
+        setIsDialogOpen(false);
+      } catch (error) {
+        console.error("Error deleting event:", error);
+      }
     }
   };
 
@@ -45,7 +71,7 @@ const CalendarPage = () => {
   };
 
   const goToPrevious = () => {
-    setCurrentDate(prevDate => {
+    setCurrentDate((prevDate) => {
       const newDate = new Date(prevDate);
       newDate.setDate(newDate.getDate() - 1);
       return newDate;
@@ -53,7 +79,7 @@ const CalendarPage = () => {
   };
 
   const goToNext = () => {
-    setCurrentDate(prevDate => {
+    setCurrentDate((prevDate) => {
       const newDate = new Date(prevDate);
       newDate.setDate(newDate.getDate() + 1);
       return newDate;
