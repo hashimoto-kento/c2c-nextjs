@@ -8,9 +8,9 @@ export default function Home() {
   return (
     <div>
       <main className="flext min-h-screen flex-col items-center justify-center p-24">
-        <h1 className="text-4xl font-bold mb-8">aaaa</h1>
+        <h1 className="text-4xl font-bold mb-8">TopPage</h1>
         <Clock />
-        <Link href="/ssg">
+        {/* <Link href="/ssg">
           <p>ssg</p>
         </Link>
         <Link href="/user/1">
@@ -18,6 +18,12 @@ export default function Home() {
         </Link>
         <Link href="/dashboard/todo">
           <p>Todo</p>
+        </Link> */}
+        <Link href="/auth/signin">
+          <p>signin</p>
+        </Link>
+        <Link href="/auth/signup">
+          <p>signup</p>
         </Link>
         <Toaster />
       </main>

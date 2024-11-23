@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function SignUp() {
   const [name, setName] = useState("");
@@ -64,6 +65,9 @@ export default function SignUp() {
           Sign Up
         </button>
       </form>
+      <Link href="/">
+        <p className="text-blue-500 ml-4">Back to top</p>
+      </Link>
     </div>
   );
 }

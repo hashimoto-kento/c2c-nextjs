@@ -1,18 +1,12 @@
-export interface Event {
+export interface CalendarEvent {
   id: string;
   title: string;
   description?: string;
   startDate: Date;
   endDate: Date;
   allDay: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-export interface EventFormData {
-  title: string;
-  description?: string;
-  startDate: Date;
-  endDate: Date;
-  allDay: boolean;
-}
+export type CalendarEventFormData = Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>;

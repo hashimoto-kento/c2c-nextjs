@@ -4,15 +4,15 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '../../components/ui/dialog';
-import { EventForm } from './EventForm';
-import type { Event, EventFormData } from '../../types/event';
+} from '@/app/components/ui/dialog';
+import { EventForm } from '@/app/components/calendar/EventForm';
+import type { CalendarEvent, CalendarEventFormData } from '@/app/types/event';
 
 interface EventDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  event?: Event;
-  onSubmit: (data: EventFormData) => Promise<void>;
+  event?: CalendarEvent;
+  onSubmit: (data: CalendarEventFormData) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
