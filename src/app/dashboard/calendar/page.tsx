@@ -63,11 +63,6 @@ const CalendarPage = () => {
   return (
     <div className="h-screen p-4">
       <div className="mb-4 flex justify-between items-center">
-        <div>
-          <Button onClick={goToPrevious}>前へ</Button>
-          <Button onClick={goToToday} className="ml-2">今日</Button>
-          <Button onClick={goToNext} className="ml-2">次へ</Button>
-        </div>
         <div>{currentDate.toLocaleDateString()}</div>
       </div>
       <CalendarView
