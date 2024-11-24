@@ -1,8 +1,6 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { NextResponse } from 'next/server';
+import { z } from 'zod';
+import prisma from '@/app/lib/prisma';
 
 // Event validation schema
 const eventSchema = z.object({
@@ -16,6 +14,18 @@ const eventSchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+
+    // フィールドを適切な形式に変換
+    if (body.startDate) {
+      body.startDate = new Date(body.startDate).toISOString();
+    }
+    if (body.endDate) {
+      body.endDate = new Date(body.endDate).toISOString();
+    }
+    if (body.allDay !== undefined) {
+      body.allDay = body.allDay === 'true';
+    }
+
     const validatedData = eventSchema.parse(body);
 
     const event = await prisma.event.create({
@@ -68,5 +78,48 @@ export async function DELETE(request: Request) {
   } catch (error) {
     console.error('Server Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, ...updateData } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
+    }
+
+    // フィールドを適切な形式に変換
+    if (updateData.startDate) {
+      updateData.startDate = new Date(updateData.startDate).toISOString();
+    }
+    if (updateData.endDate) {
+      updateData.endDate = new Date(updateData.endDate).toISOString();
+    }
+    if (updateData.allDay !== undefined) {
+      updateData.allDay = updateData.allDay === 'true';
+    }
+
+    const validatedData = eventSchema.parse(updateData);
+
+    const event = await prisma.event.update({
+      where: { id },
+      data: {
+        ...validatedData,
+        startDate: new Date(validatedData.startDate),
+        endDate: new Date(validatedData.endDate),
+      },
+    });
+
+    return NextResponse.json(event);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error('Validation Error:', error.errors);
+      return NextResponse.json({ error: error.errors }, { status: 400 });
+    } else {
+      console.error('Server Error:', error);
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
   }
 }

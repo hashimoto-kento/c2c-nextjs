@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { EventFormData } from '../../types/event';
+import { CalendarEventFormData } from '../../types/event';
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Checkbox } from "../../components/ui/checkbox";
 
 interface EventFormProps {
-  initialData?: EventFormData;
-  onSubmit: (data: EventFormData) => Promise<void>;
+  initialData?: CalendarEventFormData;
+  onSubmit: (data: CalendarEventFormData) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
@@ -18,7 +18,7 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<EventFormData>({
+  } = useForm<CalendarEventFormData>({
     defaultValues: initialData,
   });
 
@@ -38,7 +38,7 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
     }
   };
 
-  const handleSubmitForm = async (data: EventFormData) => {
+  const handleSubmitForm = async (data: CalendarEventFormData) => {
     setIsSubmitting(true);
     await onSubmit(data);
     setIsSubmitting(false);
