@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import prisma from "@/app/lib/prisma";
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // Event validation schema
 const eventSchema = z.object({
@@ -12,39 +14,59 @@ const eventSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const validatedData = eventSchema.parse(body);
+  try {
+    const body = await request.json();
+    const validatedData = eventSchema.parse(body);
 
-  const event = await prisma.event.create({
-    data: {
-      ...validatedData,
-      startDate: new Date(validatedData.startDate),
-      endDate: new Date(validatedData.endDate),
-    },
-  });
+    const event = await prisma.event.create({
+      data: {
+        ...validatedData,
+        startDate: new Date(validatedData.startDate),
+        endDate: new Date(validatedData.endDate),
+      },
+    });
 
-  return NextResponse.json(event);
+    return NextResponse.json(event, { status: 201 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error('Validation Error:', error.errors);
+      return NextResponse.json({ error: error.errors }, { status: 400 });
+    } else {
+      console.error('Server Error:', error);
+      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+  }
 }
 
 export async function GET() {
-  const events = await prisma.event.findMany();
-  return NextResponse.json(events);
+  try {
+    const events = await prisma.event.findMany();
+    return NextResponse.json(events);
+  } catch (error) {
+    console.error('Server Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id");
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
 
-  if (!id) {
-    return NextResponse.json(
-      { error: "Event ID is required" },
-      { status: 400 }
-    );
+    if (!id) {
+      return NextResponse.json(
+        { error: "Event ID is required" },
+        { status: 400 }
+      );
+    }
+
+    await prisma.event.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Server Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
-
-  await prisma.event.delete({
-    where: { id },
-  });
-
-  return NextResponse.json({ success: true });
 }
