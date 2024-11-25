@@ -8,7 +8,9 @@ export function useEventOperations() {
   const fetchEvents = async (): Promise<CalendarEvent[]> => {
     const response = await fetch('/events');
     if (!response.ok) throw new Error('Failed to fetch events');
-    return await response.json();
+    const data = await response.json();
+    setEvents(data);
+    return data;
   };
 
   const handleSubmit = async (data: CalendarEventFormData, selectedEvent: CalendarEvent | null): Promise<CalendarEvent> => {

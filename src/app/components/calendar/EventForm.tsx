@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { CalendarEventFormData } from '../../types/event';
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Checkbox } from "../../components/ui/checkbox";
+import React, { useState, useEffect } from 'react'; //useStateによりフォームの送信状態を管理、useEffectを使用してinitialDateが変更されたときにフォームフィールドの値を更新
+import { useForm } from 'react-hook-form'; //フォームの状態を管理
+import { CalendarEventFormData } from '@/app/types/event';
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Checkbox } from "@/app/components/ui/checkbox";
 
 interface EventFormProps {
   initialData?: CalendarEventFormData;
@@ -32,12 +32,14 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
     }
   }, [initialData, setValue]);
 
+  //削除ボタンがクリックされたときにonDelete関数を呼び出す
   const handleDelete = async () => {
     if (onDelete) {
       await onDelete();
     }
   };
 
+  //フォーム送信時に送信状態を更新
   const handleSubmitForm = async (data: CalendarEventFormData) => {
     setIsSubmitting(true);
     await onSubmit(data);
