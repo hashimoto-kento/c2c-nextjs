@@ -6,7 +6,7 @@ export function useEventOperations() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
   const fetchEvents = async (): Promise<CalendarEvent[]> => {
-    const response = await fetch('/events');
+    const response = await fetch('/api/events');
     if (!response.ok) throw new Error('Failed to fetch events');
     const data = await response.json();
     setEvents(data);
@@ -15,7 +15,7 @@ export function useEventOperations() {
 
   const handleSubmit = async (data: CalendarEventFormData, selectedEvent: CalendarEvent | null): Promise<CalendarEvent> => {
     const method = selectedEvent ? 'PUT' : 'POST';
-    const url = selectedEvent ? `/events/${selectedEvent.id}` : '/events';
+    const url = selectedEvent ? `/api/events/${selectedEvent.id}` : '/api/events';
 
     const response = await fetch(url, {
       method,
@@ -28,7 +28,7 @@ export function useEventOperations() {
   };
 
   const handleDelete = async (event: CalendarEvent): Promise<void> => {
-    const response = await fetch(`/events?id=${event.id}`, {
+    const response = await fetch(`/api/events?id=${event.id}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete event');
