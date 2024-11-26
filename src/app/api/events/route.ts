@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
-import prisma from '@/app/lib/prisma';
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import prisma from "@/app/lib/prisma";
 
 // Event validation schema
 const eventSchema = z.object({
@@ -14,6 +14,7 @@ const eventSchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    console.log("1st" + body);
 
     // フィールドを適切な形式に変換
     if (body.startDate) {
@@ -23,10 +24,12 @@ export async function POST(request: Request) {
       body.endDate = new Date(body.endDate).toISOString();
     }
     if (body.allDay !== undefined) {
-      body.allDay = body.allDay === 'true';
+      body.allDay = body.allDay === "true";
     }
 
     const validatedData = eventSchema.parse(body);
+
+    console.log("2nd" + validatedData);
 
     const event = await prisma.event.create({
       data: {
@@ -36,14 +39,19 @@ export async function POST(request: Request) {
       },
     });
 
+    console.log("3rd" + event);
+
     return NextResponse.json(event, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Validation Error:', error.errors);
+      console.error("Validation Error:", error.errors);
       return NextResponse.json({ error: error.errors }, { status: 400 });
     } else {
-      console.error('Server Error:', error);
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      console.error("Server Error:", error);
+      return NextResponse.json(
+        { error: "Internal Server Error" },
+        { status: 500 }
+      );
     }
   }
 }
@@ -53,8 +61,11 @@ export async function GET() {
     const events = await prisma.event.findMany();
     return NextResponse.json(events);
   } catch (error) {
-    console.error('Server Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("Server Error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -76,8 +87,11 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Server Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error("Server Error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -87,7 +101,10 @@ export async function PUT(request: Request) {
     const { id, ...updateData } = body;
 
     if (!id) {
-      return NextResponse.json({ error: "Event ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Event ID is required" },
+        { status: 400 }
+      );
     }
 
     // フィールドを適切な形式に変換
@@ -98,7 +115,7 @@ export async function PUT(request: Request) {
       updateData.endDate = new Date(updateData.endDate).toISOString();
     }
     if (updateData.allDay !== undefined) {
-      updateData.allDay = updateData.allDay === 'true';
+      updateData.allDay = updateData.allDay === "true";
     }
 
     const validatedData = eventSchema.parse(updateData);
@@ -115,11 +132,14 @@ export async function PUT(request: Request) {
     return NextResponse.json(event);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Validation Error:', error.errors);
+      console.error("Validation Error:", error.errors);
       return NextResponse.json({ error: error.errors }, { status: 400 });
     } else {
-      console.error('Server Error:', error);
-      return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+      console.error("Server Error:", error);
+      return NextResponse.json(
+        { error: "Internal Server Error" },
+        { status: 500 }
+      );
     }
   }
 }
