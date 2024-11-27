@@ -11,10 +11,24 @@ const eventSchema = z.object({
   allDay: z.boolean().default(false),
 });
 
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    console.log("1st" + body);
+    const text = await request.text();
+    const body = text ? JSON.parse(text) : null;
+
+    if (!body) {
+      return NextResponse.json(
+        { error: "Request body is required" },
+        { status: 400 }
+      );
+    }
+    console.log("1st", JSON.stringify(body, null, 2));
 
     // フィールドを適切な形式に変換
     if (body.startDate) {
@@ -24,12 +38,12 @@ export async function POST(request: Request) {
       body.endDate = new Date(body.endDate).toISOString();
     }
     if (body.allDay !== undefined) {
-      body.allDay = body.allDay === "true";
+      body.allDay = body.allDay === "true" || body.allDay === "on";
     }
 
     const validatedData = eventSchema.parse(body);
 
-    console.log("2nd" + validatedData);
+    console.log("2nd", JSON.stringify(validatedData, null, 2));
 
     const event = await prisma.event.create({
       data: {
@@ -39,20 +53,15 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("3rd" + event);
+    console.log("3rd", JSON.stringify(event, null, 2));
 
-    return NextResponse.json(event, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      console.error("Validation Error:", error.errors);
-      return NextResponse.json({ error: error.errors }, { status: 400 });
-    } else {
-      console.error("Server Error:", error);
-      return NextResponse.json(
-        { error: "Internal Server Error" },
-        { status: 500 }
-      );
-    }
+    return new NextResponse(JSON.stringify(event), {
+      status: 201,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (prismaError) {
+    console.error("Prisma Error:", prismaError);
+    return NextResponse.json({ error: "Database Error" }, { status: 500 });
   }
 }
 
