@@ -26,6 +26,7 @@ module use by missing type
 
 prisma-adapter
 next-auth.d.ts create and TSserver restart by clear
+global install already
 
 prisma?
 ORM, for Node.js.
