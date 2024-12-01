@@ -1,57 +1,63 @@
-import React, { useState, useEffect } from "react"; //useStateによりフォームの送信状態を管理、useEffectを使用してinitialDateが変更されたときにフォームフィールドの値を更新
-import { useForm } from "react-hook-form"; //フォームの状態を管理
-import { CalendarEventFormData } from "@/app/types/event";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { CalendarEvent,CalendarEventFormData, CalendarEventCreate } from "@/app/types/event";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Checkbox } from "@/app/components/ui/checkbox";
+import { get } from "http";
 
 interface EventFormProps {
-  initialData?: CalendarEventFormData;
-  onSubmit: (data: CalendarEventFormData) => Promise<void>;
+  initialData?: CalendarEvent;
+  onSubmit: (data: CalendarEventCreate) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
 export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // 初期値の設定を修正
+  const getInitialValues = () => {
+    if (!initialData) return { allDay: false };
+
+    return {
+      title: initialData.title,
+      description: initialData.description,
+      startDate: initialData.startDate.toISOString().slice(0, 16),
+      endDate: initialData.endDate.toISOString().slice(0, 16),
+      allDay: initialData.allDay
+    };
+  };
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<CalendarEventFormData>({
-    defaultValues: initialData,
+    defaultValues: getInitialValues(),
   });
 
-  useEffect(() => {
-    if (initialData) {
-      setValue("title", initialData.title);
-      setValue("startDate", initialData.startDate);
-      setValue("endDate", initialData.endDate);
-      setValue("description", initialData.description || "");
-      setValue("allDay", initialData.allDay || false);
-    }
-  }, [initialData, setValue]);
-
-  //削除ボタンがクリックされたときにonDelete関数を呼び出す
   const handleDelete = async () => {
     if (onDelete) {
       await onDelete();
     }
   };
 
-  //フォーム送信時に送信状態を更新
-  const handleSubmitForm = async (data: CalendarEventFormData) => {
+const handleSubmitForm = async (data: CalendarEventFormData) => {
     setIsSubmitting(true);
-    // データの型変換
-    const formattedData = {
-      ...data,
-      startDate: new Date(data.startDate),
-      endDate: new Date(data.endDate),
-      allDay: data.allDay,
-    };
-
-    await onSubmit(formattedData);
-    setIsSubmitting(false);
+    try {
+      const formattedData: CalendarEventCreate = {
+        title: data.title,
+        description: data.description,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+        allDay: data.allDay === true || data.allDay === "on",
+      };
+      await onSubmit(formattedData);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

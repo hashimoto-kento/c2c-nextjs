@@ -7,28 +7,37 @@ import prisma from "@/app/lib/prisma";
 const eventSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
-  startDate: z.date(),
-  endDate: z.date(),
-  allDay: z.boolean().default(false),
+  startDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
+  endDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
+  allDay: z
+    .union([z.boolean(), z.literal("on")])
+    .transform((val) => val === "on" || val === true),
 });
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    console.log("Request body:", body);
+
     const validatedData = eventSchema.parse(body);
+    console.log("Validated data:", validatedData);
 
     const event = await prisma.event.create({
       data: validatedData,
     });
+    console.log("Created event:", event);
 
     return NextResponse.json(event, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Zod validation error:', error.errors);
+      console.error("Zod validation error:", error.errors);
       return NextResponse.json({ error: error.errors }, { status: 400 });
     } else {
-      console.error('Error creating event:', error);
-      return NextResponse.json({ error: 'Failed to create event' }, { status: 500 });
+      console.error("Error creating event:", error);
+      return NextResponse.json(
+        { error: "Failed to create event" },
+        { status: 500 }
+      );
     }
   }
 }
@@ -82,17 +91,6 @@ export async function PUT(request: Request) {
         { error: "Event ID is required" },
         { status: 400 }
       );
-    }
-
-    // フィールドを適切な形式に変換
-    if (updateData.startDate) {
-      updateData.startDate = new Date(updateData.startDate).toISOString();
-    }
-    if (updateData.endDate) {
-      updateData.endDate = new Date(updateData.endDate).toISOString();
-    }
-    if (updateData.allDay !== undefined) {
-      updateData.allDay = updateData.allDay === "true";
     }
 
     const validatedData = eventSchema.parse(updateData);

@@ -1,18 +1,15 @@
-import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/app/components/ui/dialog';
-import { EventForm } from '@/app/components/calendar/EventForm';
-import type { CalendarEvent, CalendarEventFormData } from '@/app/types/event';
+"use client";
+
+import React from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/app/components/ui/dialog";
+import { EventForm } from "./EventForm";
+import { CalendarEvent, CalendarEventCreate } from "@/app/types/event";
 
 interface EventDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  event?: CalendarEvent;
-  onSubmit: (data: CalendarEventFormData) => Promise<void>;
+  event: CalendarEvent | null;  // nullを許容するように変更
+  onSubmit: (data: CalendarEventCreate) => Promise<void>;  // 型を変更
   onDelete?: () => Promise<void>;
 }
 
@@ -28,11 +25,11 @@ export function EventDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {event ? 'Edit Event' : 'Create Event'}
+            {event ? "Edit Event" : "Create New Event"}
           </DialogTitle>
         </DialogHeader>
         <EventForm
-          initialData={event}
+          initialData={event || undefined}  // nullの場合はundefinedに変換
           onSubmit={onSubmit}
           onDelete={onDelete}
         />

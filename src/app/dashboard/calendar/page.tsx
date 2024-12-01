@@ -4,24 +4,22 @@ import React, { useState, useEffect, useCallback } from "react";
 import { CalendarView } from "@/app/components/calendar/CalendarView";
 import { EventDialog } from "@/app/components/calendar/EventDialog";
 import { useEventOperations } from "@/app/hooks/useEventOperations";
-import { CalendarEvent, CalendarEventFormData } from "@/app/types/event";
+import { CalendarEvent, CalendarEventCreate } from "@/app/types/event";
 
 const CalendarPage = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
-    null
-  );
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { handleSubmit, handleDelete } = useEventOperations();
 
-  // fetchEventsをuseCallbackでメモ化
   const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch("/api/events");
       if (!response.ok) {
         throw new Error("Failed to fetch events");
       }
-      return await response.json();
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error("Error fetching events:", error);
       throw error;
@@ -34,11 +32,11 @@ const CalendarPage = () => {
         const fetchedEvents = await fetchEvents();
         setEvents(fetchedEvents);
       } catch (error) {
-        console.error("Error fetching events:", error);
+        console.error("Error loading events:", error);
       }
     };
     loadEvents();
-  }, []);
+  }, [fetchEvents]);
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
     setSelectedEvent(null);
@@ -50,10 +48,17 @@ const CalendarPage = () => {
     setIsDialogOpen(true);
   };
 
-  const onSubmit = async (data: CalendarEventFormData) => {
+  const onSubmit = async (data: CalendarEventCreate) => {
     try {
       const newEvent = await handleSubmit(data, selectedEvent);
-      setEvents((prevEvents) => [...prevEvents, newEvent]);
+      setEvents((prevEvents) => {
+        if (selectedEvent) {
+          return prevEvents.map((event) =>
+            event.id === selectedEvent.id ? newEvent : event
+          );
+        }
+        return [...prevEvents, newEvent];
+      });
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error creating/updating event:", error);
@@ -104,6 +109,11 @@ const CalendarPage = () => {
     <div className="h-screen p-4">
       <div className="mb-4 flex justify-between items-center">
         <div>{currentDate.toLocaleDateString()}</div>
+        <div className="space-x-2">
+          <button onClick={goToPrevious}>Previous</button>
+          <button onClick={goToToday}>Today</button>
+          <button onClick={goToNext}>Next</button>
+        </div>
       </div>
       <CalendarView
         events={events}
@@ -116,7 +126,7 @@ const CalendarPage = () => {
       <EventDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        event={selectedEvent || undefined}
+        event={selectedEvent}
         onSubmit={onSubmit}
         onDelete={selectedEvent ? onDelete : undefined}
       />
