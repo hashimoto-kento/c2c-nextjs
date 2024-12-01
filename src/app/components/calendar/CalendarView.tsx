@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Calendar, Views, momentLocalizer } from "react-big-calendar";
 import moment from "moment";
 import { CalendarEvent } from "@/app/types/event";
-import { set } from "zod";
 
 const localizer = momentLocalizer(moment);
 

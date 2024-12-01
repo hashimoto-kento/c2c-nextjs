@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { CalendarEvent,CalendarEventFormData, CalendarEventCreate } from "@/app/types/event";
+import {
+  CalendarEvent,
+  CalendarEventFormData,
+  CalendarEventCreate,
+} from "@/app/types/event";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Checkbox } from "@/app/components/ui/checkbox";
-import { get } from "http";
 
 interface EventFormProps {
   initialData?: CalendarEvent;
@@ -14,7 +17,7 @@ interface EventFormProps {
 
 export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // 初期値の設定を修正
   const getInitialValues = () => {
     if (!initialData) return { allDay: false };
@@ -24,7 +27,7 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
       description: initialData.description,
       startDate: initialData.startDate.toISOString().slice(0, 16),
       endDate: initialData.endDate.toISOString().slice(0, 16),
-      allDay: initialData.allDay
+      allDay: initialData.allDay,
     };
   };
 
@@ -42,7 +45,7 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
     }
   };
 
-const handleSubmitForm = async (data: CalendarEventFormData) => {
+  const handleSubmitForm = async (data: CalendarEventFormData) => {
     setIsSubmitting(true);
     try {
       const formattedData: CalendarEventCreate = {

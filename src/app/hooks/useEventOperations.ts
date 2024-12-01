@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CalendarEvent, CalendarEventFormData } from "@/app/types/event";
-import prisma from "@/app/lib/prisma"; // Prismaクライアントのインポート
 
 export function useEventOperations() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);

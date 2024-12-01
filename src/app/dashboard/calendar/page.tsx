@@ -8,7 +8,9 @@ import { CalendarEvent, CalendarEventCreate } from "@/app/types/event";
 
 const CalendarPage = () => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
+    null
+  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { handleSubmit, handleDelete } = useEventOperations();
 
@@ -50,7 +52,19 @@ const CalendarPage = () => {
 
   const onSubmit = async (data: CalendarEventCreate) => {
     try {
-      const newEvent = await handleSubmit(data, selectedEvent);
+      const transformedData = {
+        ...data,
+        startDate:
+          data.startDate instanceof Date
+            ? data.startDate.toISOString()
+            : data.startDate,
+        endDate:
+          data.endDate instanceof Date
+            ? data.endDate.toISOString()
+            : data.endDate,
+      };
+
+      const newEvent = await handleSubmit(transformedData, selectedEvent);
       setEvents((prevEvents) => {
         if (selectedEvent) {
           return prevEvents.map((event) =>
@@ -85,36 +99,8 @@ const CalendarPage = () => {
     setCurrentDate(newDate);
   };
 
-  const goToToday = () => {
-    setCurrentDate(new Date());
-  };
-
-  const goToPrevious = () => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      newDate.setDate(newDate.getDate() - 1);
-      return newDate;
-    });
-  };
-
-  const goToNext = () => {
-    setCurrentDate((prevDate) => {
-      const newDate = new Date(prevDate);
-      newDate.setDate(newDate.getDate() + 1);
-      return newDate;
-    });
-  };
-
   return (
     <div className="h-screen p-4">
-      <div className="mb-4 flex justify-between items-center">
-        <div>{currentDate.toLocaleDateString()}</div>
-        <div className="space-x-2">
-          <button onClick={goToPrevious}>Previous</button>
-          <button onClick={goToToday}>Today</button>
-          <button onClick={goToNext}>Next</button>
-        </div>
-      </div>
       <CalendarView
         events={events}
         onSelectSlot={handleSelectSlot}
@@ -122,7 +108,6 @@ const CalendarPage = () => {
         currentDate={currentDate}
         onDateChange={handleDateChange}
       />
-
       <EventDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}

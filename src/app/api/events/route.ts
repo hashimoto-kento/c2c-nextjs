@@ -3,7 +3,6 @@ import { z } from "zod";
 import prisma from "@/app/lib/prisma";
 
 // Event validation schema
-
 const eventSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
@@ -23,10 +22,14 @@ export async function POST(request: Request) {
     console.log("Validated data:", validatedData);
 
     const event = await prisma.event.create({
-      data: validatedData,
+      data: {
+        ...validatedData,
+        startDate: new Date(validatedData.startDate),
+        endDate: new Date(validatedData.endDate),
+      },
     });
-    console.log("Created event:", event);
 
+    console.log("Created event:", event);
     return NextResponse.json(event, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
