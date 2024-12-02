@@ -1,6 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
-import prisma from "@/app/lib/prisma";
+import { PrismaClient } from "@prisma/client";
+// import prisma from "@/app/lib/prisma";
+
+const prisma = new PrismaClient();
 
 // Event validation schema
 const eventSchema = z.object({
@@ -13,24 +16,31 @@ const eventSchema = z.object({
     .transform((val) => val === "on" || val === true),
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log("Request body:", body);
+    // console.log("Request body:", body);
 
-    const validatedData = eventSchema.parse(body);
-    console.log("Validated data:", validatedData);
+    // const validatedData = eventSchema.parse(body);
+    // console.log("Validated data:", validatedData);
 
-    const event = await prisma.event.create({
+    await prisma.event.create({
       data: {
-        ...validatedData,
-        startDate: new Date(validatedData.startDate),
-        endDate: new Date(validatedData.endDate),
+        title: body.title,
+        description: body.description,
+        startDate: new Date(body.startDate),
+        endDate: new Date(body.endDate),
+        // allDay: body.allDay === "on" || body.allDay ===
+        // ...validatedData,
+        // startDate: new Date(validatedData.startDate),
+        // endDate: new Date(validatedData.endDate),
       },
     });
 
+    // return NextResponse.json(event, { status: 201 });
+    const event = await getAllNotes();
     console.log("Created event:", event);
-    return NextResponse.json(event, { status: 201 });
+    return NextResponse.json(event);
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error("Zod validation error:", error.errors);
@@ -120,4 +130,9 @@ export async function PUT(request: Request) {
       );
     }
   }
+}
+
+async function getAllNotes() {
+  const events = await prisma.event.findMany();
+  return events;
 }
