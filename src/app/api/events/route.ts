@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
-// import prisma from "@/app/lib/prisma";
 
 const prisma = new PrismaClient();
 
@@ -11,9 +10,7 @@ const eventSchema = z.object({
   description: z.string().optional(),
   startDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
   endDate: z.union([z.string(), z.date()]).transform((val) => new Date(val)),
-  allDay: z
-    .union([z.boolean(), z.literal("on")])
-    .transform((val) => val === "on" || val === true),
+  allDay: z.boolean(),
 });
 
 export async function POST(request: NextRequest) {
@@ -21,23 +18,19 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     // console.log("Request body:", body);
 
-    // const validatedData = eventSchema.parse(body);
+    const validatedData = eventSchema.parse(body);
     // console.log("Validated data:", validatedData);
 
     await prisma.event.create({
       data: {
-        title: body.title,
-        description: body.description,
-        startDate: new Date(body.startDate),
-        endDate: new Date(body.endDate),
-        // allDay: body.allDay === "on" || body.allDay ===
-        // ...validatedData,
-        // startDate: new Date(validatedData.startDate),
-        // endDate: new Date(validatedData.endDate),
+        title: validatedData.title,
+        description: validatedData.description,
+        startDate: new Date(validatedData.startDate),
+        endDate: new Date(validatedData.endDate),
+        allDay: validatedData.allDay,
       },
     });
 
-    // return NextResponse.json(event, { status: 201 });
     const event = await getAllNotes();
     console.log("Created event:", event);
     return NextResponse.json(event);
