@@ -15,7 +15,7 @@ export interface CalendarEventFormData {
   description?: string;
   startDate: string;  // datetime-local input用
   endDate: string;    // datetime-local input用
-  allDay: boolean | string;  // checkbox input用
+  allDay: boolean
 }
 
 // APIに送信するデータの型

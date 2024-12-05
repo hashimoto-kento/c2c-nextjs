@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import {
   CalendarEvent,
   CalendarEventFormData,
@@ -18,7 +18,6 @@ interface EventFormProps {
 export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 初期値の設定を修正
   const getInitialValues = () => {
     if (!initialData) return { allDay: false };
 
@@ -34,6 +33,7 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
   const {
     register,
     handleSubmit,
+    control, // Add control from react-hook-form
     formState: { errors },
   } = useForm<CalendarEventFormData>({
     defaultValues: getInitialValues(),
@@ -53,7 +53,7 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
         description: data.description,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
-        allDay: data.allDay === true || data.allDay === "on",
+        allDay: data.allDay,  // Simplified as we're now getting proper boolean
       };
       await onSubmit(formattedData);
     } catch (error) {
@@ -82,7 +82,17 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
       </div>
 
       <div className="flex items-center space-x-2">
-        <Checkbox id="allDay" {...register("allDay")} />
+        <Controller
+          name="allDay"
+          control={control}
+          render={({ field }) => (
+            <Checkbox
+              id="allDay"
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          )}
+        />
         <label htmlFor="allDay">All Day Event</label>
       </div>
 
