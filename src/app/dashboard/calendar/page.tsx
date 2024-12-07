@@ -1,44 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { CalendarView } from "@/app/components/calendar/CalendarView";
 import { EventDialog } from "@/app/components/calendar/EventDialog";
 import { useEventOperations } from "@/app/hooks/useEventOperations";
 import { CalendarEvent, CalendarEventCreate } from "@/app/types/event";
 
 const CalendarPage = () => {
-  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const { events, isLoading, error, handleSubmit, handleDelete } =
+    useEventOperations();
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(
     null
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { handleSubmit, handleDelete } = useEventOperations();
-
-  const fetchEvents = useCallback(async () => {
-    try {
-      const response = await fetch("/api/events");
-      if (!response.ok) {
-        throw new Error("Failed to fetch events");
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      throw error;
-    }
-  }, []);
-
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        const fetchedEvents = await fetchEvents();
-        setEvents(fetchedEvents);
-      } catch (error) {
-        console.error("Error loading events:", error);
-      }
-    };
-    loadEvents();
-  }, [fetchEvents]);
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
     setSelectedEvent(null);
@@ -52,27 +27,18 @@ const CalendarPage = () => {
 
   const onSubmit = async (data: CalendarEventCreate) => {
     try {
-      const transformedData = {
+      // データを CalendarEventCreate の型に合わせて変換
+      const transformedData: CalendarEventCreate = {
         ...data,
         startDate:
           data.startDate instanceof Date
-            ? data.startDate.toISOString()
-            : data.startDate,
+            ? data.startDate
+            : new Date(data.startDate),
         endDate:
-          data.endDate instanceof Date
-            ? data.endDate.toISOString()
-            : data.endDate,
+          data.endDate instanceof Date ? data.endDate : new Date(data.endDate),
       };
 
-      const newEvent = await handleSubmit(transformedData, selectedEvent);
-      setEvents((prevEvents) => {
-        if (selectedEvent) {
-          return prevEvents.map((event) =>
-            event.id === selectedEvent.id ? newEvent : event
-          );
-        }
-        return [...prevEvents, newEvent];
-      });
+      await handleSubmit(transformedData, selectedEvent);
       setIsDialogOpen(false);
     } catch (error) {
       console.error("Error creating/updating event:", error);
@@ -83,9 +49,6 @@ const CalendarPage = () => {
     if (selectedEvent) {
       try {
         await handleDelete(selectedEvent);
-        setEvents((prevEvents) =>
-          prevEvents.filter((event) => event.id !== selectedEvent.id)
-        );
         setIsDialogOpen(false);
       } catch (error) {
         console.error("Error deleting event:", error);
@@ -93,11 +56,12 @@ const CalendarPage = () => {
     }
   };
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-
   const handleDateChange = (newDate: Date) => {
     setCurrentDate(newDate);
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error loading events</div>;
 
   return (
     <div className="h-screen p-4">

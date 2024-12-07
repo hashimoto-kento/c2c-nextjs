@@ -8,6 +8,7 @@ import {
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Checkbox } from "@/app/components/ui/checkbox";
+import { ensureDate } from "@/app/utils/date";
 
 interface EventFormProps {
   initialData?: CalendarEvent;
@@ -24,8 +25,8 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
     return {
       title: initialData.title,
       description: initialData.description,
-      startDate: initialData.startDate.toISOString().slice(0, 16),
-      endDate: initialData.endDate.toISOString().slice(0, 16),
+      startDate: ensureDate(initialData.startDate).toISOString().slice(0, 16),
+      endDate: ensureDate(initialData.endDate).toISOString().slice(0, 16),
       allDay: initialData.allDay,
     };
   };
