@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
+// グローバルの型定義を拡張
 declare global {
+  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 

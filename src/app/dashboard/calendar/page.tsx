@@ -15,7 +15,7 @@ const CalendarPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
+  const handleSelectSlot = () => {
     setSelectedEvent(null);
     setIsDialogOpen(true);
   };
