@@ -1,9 +1,15 @@
 import Link from "next/link";
-import TodoSection from "../../components/TodoSection";
+import TodoSection from "@/app/components/TodoSection";
 
-export default async function UserDashboard({
-  params }: { params: { userId: string }}) {
-    const userId = params.userId;
+interface PageProps {
+  params: Promise<{
+    userId: string;
+  }>;
+}
+
+export default async function UserDashboard({ params }: PageProps) {
+  const resolvedParams = await params;
+  const userId = resolvedParams.userId;
 
   return (
     <div className="container mx-auto px-4 py-8">

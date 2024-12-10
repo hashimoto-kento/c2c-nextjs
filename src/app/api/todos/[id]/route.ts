@@ -2,27 +2,28 @@ import prisma from "@/app/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { type NextApiRequest, type NextApiResponse } from "next";
 
-interface PutContext {
-  params: {
+// 型をネストされたPromiseとして定義
+type ContextWithPromise = {
+  params: Promise<{
     id: string;
-  };
-}
+  }>;
+};
 
-export async function PUT(request: Request | NextRequest, context: PutContext) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+export async function PUT(request: NextRequest, context: ContextWithPromise) {
   try {
-    const { id } = context.params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const params = await context.params;
     const { title, completed } = await request.json();
     const todo = await prisma.todo.update({
-      where: { id },
+      where: { id: params.id },
       data: { title, completed },
     });
+
     return NextResponse.json(todo);
   } catch (error) {
     console.error("Error updating todo:", error);
@@ -31,19 +32,20 @@ export async function PUT(request: Request | NextRequest, context: PutContext) {
 }
 
 export async function DELETE(
-  request: Request | NextRequest,
-  context: PutContext
+  request: NextRequest,
+  context: ContextWithPromise
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const { id } = context.params;
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const params = await context.params;
     await prisma.todo.delete({
-      where: { id },
+      where: { id: params.id },
     });
+
     return NextResponse.json(null, { status: 204 });
   } catch (error) {
     console.error("Error deleting todo:", error);
