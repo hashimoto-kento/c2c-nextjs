@@ -3,15 +3,22 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 interface UserPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
+}
+
+interface MetadataProps {
+  params: Promise<{
+    id: string;
+  }>;
 }
 
 export const metadata = async ({
   params,
-}: UserPageProps): Promise<Metadata> => {
-  const title = params?.id ? `User ${params.id} Profile` : "User Profile";
+}: MetadataProps): Promise<Metadata> => {
+  const resolvedParams = await params;
+  const title = resolvedParams?.id ? `User ${resolvedParams.id} Profile` : "User Profile";
   return {
     title,
     description: "User profile page",
@@ -30,7 +37,9 @@ export async function generateStaticParams() {
 }
 
 export default async function UserPage({ params }: UserPageProps) {
+  // const resolvedParams = await params;
   const { id } = await params;
+
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/users/${id}`
   );
