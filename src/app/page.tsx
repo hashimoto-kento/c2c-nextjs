@@ -16,15 +16,6 @@ export default function Home() {
             <button>Menu</button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content>
-        {/* <Link href="/ssg">
-          <p>ssg</p>
-        </Link>
-        <Link href="/user/1">
-          <p>user/1</p>
-        </Link>
-        <Link href="/dashboard/todo">
-          <p>Todo</p>
-        </Link> */}
         <DropdownMenu.Item>
         <Link href="/auth/signin">
           <p>signin</p>
