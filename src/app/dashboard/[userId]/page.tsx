@@ -7,9 +7,7 @@ interface PageProps {
   }>;
 }
 
-export default async function UserDashboard({ params }: PageProps) {
-  const resolvedParams = await params;
-  const userId = resolvedParams.userId;
+export default async function UserDashboard({ }: PageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">

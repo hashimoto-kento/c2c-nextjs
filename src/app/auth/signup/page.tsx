@@ -30,7 +30,7 @@ export default function SignUp() {
         const data = await response.json();
         setError(data.error || 'ユーザー登録に失敗しました。');
       }
-    } catch (error) {
+    } catch {
       setError('サーバーエラーが発生しました。');
     } finally {
       setLoading(false);
