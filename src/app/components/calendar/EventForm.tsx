@@ -12,7 +12,7 @@ import { ensureDate } from "@/app/utils/date";
 
 interface EventFormProps {
   initialData?: CalendarEvent;
-  onSubmit: (data: CalendarEventCreate) => Promise<void>;
+  onSubmit: (data: CalendarEventCreate, eventId?: string) => Promise<void>;
   onDelete?: () => Promise<void>;
 }
 
@@ -34,7 +34,7 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
   const {
     register,
     handleSubmit,
-    control, // Add control from react-hook-form
+    control,
     formState: { errors },
   } = useForm<CalendarEventFormData>({
     defaultValues: getInitialValues(),
@@ -42,7 +42,11 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
 
   const handleDelete = async () => {
     if (onDelete) {
-      await onDelete();
+      try {
+        await onDelete();
+      } catch (error) {
+        console.error("Error deleting event:", error);
+      }
     }
   };
 
@@ -54,11 +58,14 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
         description: data.description,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
-        allDay: data.allDay,  // Simplified as we're now getting proper boolean
+        allDay: data.allDay,
       };
-      await onSubmit(formattedData);
+
+      // Pass the eventId if we're updating an existing event
+      await onSubmit(formattedData, initialData?.id);
     } catch (error) {
       console.error("Error submitting form:", error);
+      throw error; // Re-throw the error to be handled by the parent component
     } finally {
       setIsSubmitting(false);
     }
@@ -67,7 +74,9 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
   return (
     <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-4">
       <div>
-        <label htmlFor="title">Title</label>
+        <label htmlFor="title" className="block text-sm font-medium mb-1">
+          Title
+        </label>
         <Input
           id="title"
           {...register("title", { required: "Title is required" })}
@@ -78,7 +87,9 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
       </div>
 
       <div>
-        <label htmlFor="description">Description</label>
+        <label htmlFor="description" className="block text-sm font-medium mb-1">
+          Description
+        </label>
         <Input id="description" {...register("description")} />
       </div>
 
@@ -94,11 +105,15 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
             />
           )}
         />
-        <label htmlFor="allDay">All Day Event</label>
+        <label htmlFor="allDay" className="text-sm font-medium">
+          All Day Event
+        </label>
       </div>
 
       <div>
-        <label htmlFor="startDate">Start Date</label>
+        <label htmlFor="startDate" className="block text-sm font-medium mb-1">
+          Start Date
+        </label>
         <Input
           id="startDate"
           type="datetime-local"
@@ -110,7 +125,9 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
       </div>
 
       <div>
-        <label htmlFor="endDate">End Date</label>
+        <label htmlFor="endDate" className="block text-sm font-medium mb-1">
+          End Date
+        </label>
         <Input
           id="endDate"
           type="datetime-local"
@@ -123,12 +140,17 @@ export function EventForm({ initialData, onSubmit, onDelete }: EventFormProps) {
 
       <div className="flex justify-end space-x-2">
         {onDelete && (
-          <Button type="button" variant="destructive" onClick={handleDelete}>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isSubmitting}
+          >
             Delete
           </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Submitting..." : "Submit"}
+          {isSubmitting ? "Submitting..." : initialData ? "Update" : "Create"}
         </Button>
       </div>
     </form>

@@ -1,10 +1,9 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-// Event validation schema
 const eventSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
@@ -13,15 +12,20 @@ const eventSchema = z.object({
   allDay: z.boolean(),
 });
 
-export async function POST(request: NextRequest) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const body = await request.json();
-    console.log("POST Request body:", body);
+    console.log("PUT Request body:", body);
+    console.log("Event ID:", params.id);
 
     const validatedData = eventSchema.parse(body);
     console.log("Validated data:", validatedData);
 
-    const newEvent = await prisma.event.create({
+    const updatedEvent = await prisma.event.update({
+      where: { id: params.id },
       data: {
         title: validatedData.title,
         description: validatedData.description,
@@ -31,55 +35,35 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log("Created event:", newEvent);
-    return NextResponse.json(newEvent);
+    console.log("Updated event:", updatedEvent);
+    return NextResponse.json(updatedEvent);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error("Zod validation error:", error.errors);
+      console.error("Validation Error:", error.errors);
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
-    console.error("Error creating event:", error);
-    return NextResponse.json(
-      { error: "Failed to create event" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET() {
-  try {
-    const events = await prisma.event.findMany();
-    return NextResponse.json(events);
-  } catch (error) {
     console.error("Server Error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to update event" },
       { status: 500 }
     );
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Event ID is required" },
-        { status: 400 }
-      );
-    }
-
     await prisma.event.delete({
-      where: { id },
+      where: { id: params.id },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Server Error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to delete event" },
       { status: 500 }
     );
   }
